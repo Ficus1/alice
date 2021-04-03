@@ -35,7 +35,7 @@ def handle_dialog(req, res, wheel):
     user_id = req['session']['user_id']
     global a
 
-    if req['session']['new'] or wheel == 1:
+    if req['session']['new']:
 
         sessionStorage[user_id] = {
             'suggests': [
@@ -61,6 +61,8 @@ def handle_dialog(req, res, wheel):
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True if wheel == 1 else False
+        if a == 0:
+            res['response']['text'] = f'Привет! Купи {to_buy[wheel + 1]}!'
         a += 1
         return
 
