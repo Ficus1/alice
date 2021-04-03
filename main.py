@@ -24,7 +24,7 @@ def main():
             'end_session': False
         }
     }
-    handle_dialog(request.json, response, 0)
+    handle_dialog(request.json, response, a)
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
@@ -33,6 +33,7 @@ def main():
 def handle_dialog(req, res, wheel):
     to_buy = ['слона', 'кролика']
     user_id = req['session']['user_id']
+    global a
 
     if req['session']['new']:
 
@@ -59,7 +60,8 @@ def handle_dialog(req, res, wheel):
     ]:
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True
+        res['response']['end_session'] = True if wheel == 1 else False
+        a += 1
         return
 
     # Если нет, то убеждаем его купить слона!
