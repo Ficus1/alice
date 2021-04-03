@@ -65,6 +65,7 @@ def handle_dialog(req, res, wheel):
         return
     if a == 1 and not res['response']['end_session']:
         res['response']['text'] = f'Привет! Купи {to_buy[wheel + 1]}!'
+        return 
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
