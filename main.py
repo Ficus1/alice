@@ -46,7 +46,7 @@ def handle_dialog(req, res, wheel):
         res['response']['text'] = f'Привет! Купи {to_buy[wheel]}!'
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id, wheel)
-        return
+
 
     if req['request']['original_utterance'].lower() in [
         'ладно',
@@ -59,7 +59,7 @@ def handle_dialog(req, res, wheel):
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True if wheel == 1 else False
-        return
+        
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
