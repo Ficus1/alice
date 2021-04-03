@@ -31,8 +31,6 @@ def main():
 
 def handle_dialog(req, res, wheel):
     to_buy = ['слона', 'кролика']
-    a = req[:]
-    b = res[:]
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -60,8 +58,6 @@ def handle_dialog(req, res, wheel):
     ]:
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
-        if wheel == 0:
-            return handle_dialog(a, b, wheel)
         res['response']['end_session'] = True
         return
 
