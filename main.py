@@ -57,9 +57,8 @@ def handle_dialog(req, res, wheel):
         'я куплю'
     ]:
         # Пользователь согласился, прощаемся.
-        res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете! {wheel}'
+        res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True
-        handle_dialog(req, res, 1)
         return
 
     # Если нет, то убеждаем его купить слона!
