@@ -35,7 +35,7 @@ def handle_dialog(req, res, wheel):
     user_id = req['session']['user_id']
     global a
 
-    if req['session']['new']:
+    if req['session']['new'] or wheel == 1:
 
         sessionStorage[user_id] = {
             'suggests': [
