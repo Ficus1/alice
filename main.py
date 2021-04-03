@@ -22,9 +22,8 @@ def main():
             'end_session': False
         }
     }
-    a = 0
-    if handle_dialog(request.json, response, a):
-        a += 1
+    if handle_dialog(request.json, response, 0):
+        handle_dialog(request.json, response, 1)
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
