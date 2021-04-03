@@ -47,7 +47,7 @@ def handle_dialog(req, res, wheel):
         # Заполняем текст ответа
         res['response']['text'] = f'Привет! Купи {to_buy[wheel]}!'
         # Получим подсказки
-        res['response']['buttons'] = get_suggests(user_id)
+        res['response']['buttons'] = get_suggests(user_id, wheel)
         return
 
     if req['request']['original_utterance'].lower() in [
