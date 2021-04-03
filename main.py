@@ -23,14 +23,16 @@ def main():
         }
     }
 
-    handle_dialog(request.json, response)
+    handle_dialog(request.json, response, 0)
+    handle_dialog(request.json, response, 1)
 
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
 
 
-def handle_dialog(req, res):
+def handle_dialog(req, res, wheel):
+    to_buy = ['слона', 'кролика']
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -43,7 +45,7 @@ def handle_dialog(req, res):
             ]
         }
         # Заполняем текст ответа
-        res['response']['text'] = 'Привет! Купи слона!'
+        res['response']['text'] = f'Привет! Купи {to_buy[wheel]}!'
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id)
         return
@@ -57,18 +59,18 @@ def handle_dialog(req, res):
         'я куплю'
     ]:
         # Пользователь согласился, прощаемся.
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
+        res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True
         return
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи слона!"
-    res['response']['buttons'] = get_suggests(user_id)
+        f"Все говорят '{req['request']['original_utterance']}', а ты купи {to_buy[wheel]}!"
+    res['response']['buttons'] = get_suggests(user_id, wheel)
 
 
 # Функция возвращает две подсказки для ответа.
-def get_suggests(user_id):
+def get_suggests(user_id, wheel):
     session = sessionStorage[user_id]
 
     # Выбираем две первые подсказки из массива.
@@ -80,10 +82,16 @@ def get_suggests(user_id):
     session['suggests'] = session['suggests'][1:]
     sessionStorage[user_id] = session
 
-    if len(suggests) < 2:
+    if len(suggests) < 2 and wheel == 0:
         suggests.append({
             "title": "Ладно",
             "url": "https://market.yandex.ru/search?text=слон",
+            "hide": True
+        })
+    elif len(suggests) < 2 and wheel == 1:
+        suggests.append({
+            "title": "Ладно",
+            "url": "https://market.yandex.ru/search?text=кролик",
             "hide": True
         })
 
