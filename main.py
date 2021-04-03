@@ -23,9 +23,9 @@ def main():
         }
     }
 
-    if not handle_dialog(request.json, response, 0):
-        handle_dialog(request.json, response, 1)
+    handle_dialog(request.json, response, 0)
     logging.info(f'Response:  {response!r}')
+    handle_dialog(request.json, response, 1)
 
     return json.dumps(response)
 
