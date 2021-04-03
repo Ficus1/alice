@@ -60,7 +60,7 @@ def handle_dialog(req, res, wheel):
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True if wheel == 1 else False
         wheel += 1
-        return 
+        return
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
