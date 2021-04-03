@@ -30,7 +30,7 @@ def main():
     return json.dumps(response)
 
 
-async def handle_dialog(req, res, wheel):
+def handle_dialog(req, res, wheel):
     to_buy = ['слона', 'кролика']
     user_id = req['session']['user_id']
 
@@ -47,6 +47,8 @@ async def handle_dialog(req, res, wheel):
         res['response']['text'] = f'Привет! Купи {to_buy[wheel]}!'
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id, wheel)
+        if wheel == 0:
+            return handle_dialog(req, res, 1)
         return
 
     if req['request']['original_utterance'].lower() in [
@@ -59,6 +61,8 @@ async def handle_dialog(req, res, wheel):
     ]:
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
+        if wheel == 0:
+            return handle_dialog(req, res, 1)
         res['response']['end_session'] = True
         return
 
