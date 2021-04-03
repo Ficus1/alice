@@ -24,8 +24,7 @@ def main():
             'end_session': False
         }
     }
-    handle_dialog(request.json, response, a)
-    a = (a + 1) % 2
+    handle_dialog(request.json, response, 0)
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
@@ -60,7 +59,7 @@ def handle_dialog(req, res, wheel):
     ]:
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True if wheel == 1 else False
+        res['response']['end_session'] = True
         return
 
     # Если нет, то убеждаем его купить слона!
