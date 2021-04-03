@@ -1,1 +1,1 @@
-web: python алиса.py
+web: python main.py
