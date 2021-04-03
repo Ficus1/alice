@@ -5,6 +5,7 @@ from flask import Flask, request
 import logging
 # библиотека, которая нам понадобится для работы с JSON
 import json
+import asyncio
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -23,15 +24,17 @@ def main():
         }
     }
 
-    handle_dialog(request.json, response, 0)
-    handle_dialog(request.json, response, 1)
+    task1 = asyncio.create_task(handle_dialog(request.json, response, 0))
+    task2 = asyncio.create_task(handle_dialog(request.json, response, 1))
+    await task1
+    await task2
 
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
 
 
-def handle_dialog(req, res, wheel):
+async def handle_dialog(req, res, wheel):
     to_buy = ['слона', 'кролика']
     user_id = req['session']['user_id']
 
