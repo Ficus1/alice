@@ -9,10 +9,12 @@ import json
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 sessionStorage = {}
+a = 0
 
 
 @app.route('/post', methods=['POST'])
 def main():
+    global a
     logging.info(f'Request: {request.json!r}')
 
     response = {
@@ -22,15 +24,8 @@ def main():
             'end_session': False
         }
     }
-    if handle_dialog(request.json, response, 0):
-        response = {
-            'session': request.json['session'],
-            'version': request.json['version'],
-            'response': {
-                'end_session': False
-            }
-        }
-        handle_dialog(request.json, response, 1)
+    handle_dialog(request.json, response, a)
+    a += 1
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
@@ -66,7 +61,7 @@ def handle_dialog(req, res, wheel):
         # Пользователь согласился, прощаемся.
         res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
         res['response']['end_session'] = True if wheel == 1 else False
-        return True
+        return
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
