@@ -25,7 +25,7 @@ def main():
         }
     }
     handle_dialog(request.json, response, a)
-    a += 1
+    a = (a + 1) % 2
     logging.info(f'Response:  {response!r}')
 
     return json.dumps(response)
