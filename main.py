@@ -1,21 +1,24 @@
-# импортируем библиотеки
-import os
-
 from flask import Flask, request
 import logging
-# библиотека, которая нам понадобится для работы с JSON
 import json
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
+
+# Хранилище данных о сессиях.
 sessionStorage = {}
-a = 0
+
+#животные
+animals = [
+    'слон',
+    'кролик'
+]
 
 
 @app.route('/post', methods=['POST'])
+# Функция получает тело запроса и возвращает ответ.
 def main():
-    global a
-    logging.info(f'Request: {request.json!r}')
+    logging.info('Request: %r', request.json)
 
     response = {
         'session': request.json['session'],
@@ -24,57 +27,68 @@ def main():
             'end_session': False
         }
     }
-    handle_dialog(request.json, response, a)
-    logging.info(f'Response:  {response!r}')
+
+    handle_dialog(request.json, response)
+
+    logging.info('Response: %r', request.json)
 
     return json.dumps(response)
 
 
-def handle_dialog(req, res, wheel):
-    to_buy = ['слона', 'кролика']
+def handle_dialog(req, res):
     user_id = req['session']['user_id']
-    global a
-
-    if a == 1 and not res['response']['end_session']:
-        res['response']['text'] = f'Привет! Купи {to_buy[a]}!'
-        return
 
     if req['session']['new']:
+        # Это новый пользователь.
+        # Инициализируем сессию и поприветствуем его.
 
         sessionStorage[user_id] = {
             'suggests': [
                 "Не хочу.",
                 "Не буду.",
                 "Отстань!",
-            ]
+            ],
+            'animal': 0
         }
-        # Заполняем текст ответа
-        res['response']['text'] = f'Привет! Купи {to_buy[wheel]}!'
-        # Получим подсказки
-        res['response']['buttons'] = get_suggests(user_id, wheel)
+
+        res['response']['text'] = 'Привет! Купи ' + animals[sessionStorage[user_id]['animal']] + 'a!'
+        res['response']['buttons'] = get_suggests(user_id, animals[sessionStorage[user_id]['animal']])
         return
 
+    # Обрабатываем ответ пользователя.
     if req['request']['original_utterance'].lower() in [
         'ладно',
         'куплю',
         'покупаю',
-        'хорошо',
-        'я покупаю',
-        'я куплю'
+        'хорошо'
     ]:
         # Пользователь согласился, прощаемся.
-        res['response']['text'] = f'{to_buy[wheel].capitalize()} можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True if wheel == 1 else False
-        a += 1
+
+        sessionStorage[user_id]['suggests'] = [
+            "Не хочу.",
+            "Не буду.",
+            "Отстань!",
+        ]
+        if sessionStorage[user_id]['animal'] == len(animals) - 1:
+            res['response']['text'] = animals[sessionStorage[user_id]['animal']] + 'а можно найти на Яндекс.Маркете!'
+            sessionStorage[user_id]['animal'] += 1
+            res['response']['end_session'] = True
+        else:
+            res['response']['text'] = animals[sessionStorage[user_id]['animal']] + 'а можно найти на Яндекс.Маркете!'
+            sessionStorage[user_id]['animal'] += 1
+            res['response']['text'] += ' А ' + animals[sessionStorage[user_id]['animal']] + 'a купишь? '
+            res['response']['buttons'] = get_suggests(user_id, animals[sessionStorage[user_id]['animal']])
+        return
 
     # Если нет, то убеждаем его купить слона!
-    res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи {to_buy[wheel]}!"
-    res['response']['buttons'] = get_suggests(user_id, wheel)
+    res['response']['text'] = ('Все говорят "%s", а ты купи ' + animals[sessionStorage[user_id]['animal']] + 'а!') % (
+        req['request']['original_utterance']
+    )
+    res['response']['buttons'] = get_suggests(user_id, animals[sessionStorage[user_id]['animal']])
 
 
 # Функция возвращает две подсказки для ответа.
-def get_suggests(user_id, wheel):
+def get_suggests(user_id, animal):
     session = sessionStorage[user_id]
 
     # Выбираем две первые подсказки из массива.
@@ -83,19 +97,16 @@ def get_suggests(user_id, wheel):
         for suggest in session['suggests'][:2]
     ]
 
+    # Убираем первую подсказку, чтобы подсказки менялись каждый раз.
     session['suggests'] = session['suggests'][1:]
     sessionStorage[user_id] = session
 
-    if len(suggests) < 2 and wheel == 0:
+    # Если осталась только одна подсказка, предлагаем подсказку
+    # со ссылкой на Яндекс.Маркет.
+    if len(suggests) < 2:
         suggests.append({
             "title": "Ладно",
-            "url": "https://market.yandex.ru/search?text=слон",
-            "hide": True
-        })
-    elif len(suggests) < 2 and wheel == 1:
-        suggests.append({
-            "title": "Ладно",
-            "url": "https://market.yandex.ru/search?text=кролик",
+            "url": "https://market.yandex.ru/search?text=" + animal,
             "hide": True
         })
 
@@ -103,5 +114,4 @@ def get_suggests(user_id, wheel):
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run()
